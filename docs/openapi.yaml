@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: 😽 루틴냥 API 명세서
+  title: 🐈 루틴냥 API 명세서
   description: AI based routine Recommendation Service - 루틴냥 Server의 API 명세서입니다.
   version: v1
 servers:
@@ -195,9 +195,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
+                $ref: '#/components/schemas/UserLoginSuccessResponse'
   /api/routines/filter:
     get:
       tags:
@@ -307,8 +305,19 @@ components:
       properties:
         name:
           type: string
-        cycleDays:
-          type: string
+        repeatDays:
+          type: array
+          items:
+            type: string
+            enum:
+              - MONDAY
+              - TUESDAY
+              - WEDNESDAY
+              - THURSDAY
+              - FRIDAY
+              - SATURDAY
+              - SUNDAY
+          uniqueItems: true
         timesPerDay:
           type: integer
           format: int32
@@ -389,8 +398,19 @@ components:
       properties:
         name:
           type: string
-        cycleDays:
-          type: string
+        repeatDays:
+          type: array
+          items:
+            type: string
+            enum:
+              - MONDAY
+              - TUESDAY
+              - WEDNESDAY
+              - THURSDAY
+              - FRIDAY
+              - SATURDAY
+              - SUNDAY
+          uniqueItems: true
         timesPerDay:
           type: integer
           format: int32
@@ -431,6 +451,16 @@ components:
           format: int64
         name:
           type: string
+    UserLoginSuccessResponse:
+      type: object
+      description: 구글 로그인 성공 후 응답
+      properties:
+        onboardingFinished:
+          type: boolean
+        userName:
+          type: string
+        token:
+          type: string
     ApiResponseListRoutineGroupResponse:
       type: object
       properties:
@@ -458,12 +488,12 @@ components:
     PageRoutineResponse:
       type: object
       properties:
-        totalElements:
-          type: integer
-          format: int64
         totalPages:
           type: integer
           format: int32
+        totalElements:
+          type: integer
+          format: int64
         size:
           type: integer
           format: int32
@@ -495,14 +525,14 @@ components:
           format: int64
         sort:
           $ref: '#/components/schemas/SortObject'
-        pageSize:
-          type: integer
-          format: int32
+        paged:
+          type: boolean
         pageNumber:
           type: integer
           format: int32
-        paged:
-          type: boolean
+        pageSize:
+          type: integer
+          format: int32
         unpaged:
           type: boolean
     SortObject:
