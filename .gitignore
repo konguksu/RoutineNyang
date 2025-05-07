@@ -1,37 +1,55 @@
-HELP.md
-.gradle
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
+# ===============================
+# Global
+# ===============================
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
+# ===============================
+# Java / Gradle / Spring Boot
+# ===============================
+**/build/
+**/.gradle/
+**/.classpath
+**/.project
+**/.settings/
+**/.factorypath
+**/.apt_generated
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+# ===============================
+# IntelliJ IDEA
+# ===============================
+.idea/
 *.iml
 *.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
+*.iws
+**/out/
+**/bin/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-
-### VS Code ###
+# ===============================
+# VS Code
+# ===============================
 .vscode/
+
+# ===============================
+# NetBeans
+# ===============================
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# ===============================
+# Backend Project Specific (rounyang)
+# ===============================
+rounyang/.gradle/
+rounyang/build/
+rounyang/out/
+rounyang/bin/
+rounyang/.idea/
+rounyang/.classpath
+rounyang/.project
+rounyang/.settings/
