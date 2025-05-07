@@ -1,0 +1,522 @@
+openapi: 3.0.3
+info:
+  title: 루틴냥 API 명세서
+  description: AI based routine Recommendation Service - 루틴냥 Server의 API 명세서입니다.
+  version: v1
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+security:
+  - bearer-key: []
+tags:
+  - name: Routine Group
+    description: 루틴 그룹 API
+  - name: Routine
+    description: 루틴 API
+  - name: User
+    description: 유저 API
+paths:
+  /api/users/info/survey-answers:
+    get:
+      tags:
+        - User
+      summary: User 설문 정보 조회
+      description: 온보딩에서 입력받은 유저의 설문 결과 조회
+      operationId: findSurveyAnswers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseSurveyResponse'
+    put:
+      tags:
+        - User
+      summary: User 설문 정보 수정
+      description: 유저의 설문 정보 수정
+      operationId: updateSurveyAnswers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/SurveyDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseSurveyResponse'
+  /api/users/info/basics:
+    get:
+      tags:
+        - User
+      summary: User 기본 정보 조회
+      description: 유저의 이름, 나이, 성별 조회
+      operationId: findBasicUserInfo
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseUserBasicInfoDto'
+    put:
+      tags:
+        - User
+      summary: User 기본 정보 수정
+      description: 유저의 기본 정보 수정
+      operationId: updateUserInfo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBasicInfoDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseUserBasicInfoDto'
+  /api/routines/{routine-id}:
+    put:
+      tags:
+        - Routine
+      summary: Routine 수정
+      description: 기존에 존재하던 루틴을 수정
+      operationId: updateRoutine
+      parameters:
+        - name: routine-id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoutineUpdateRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseRoutineResponse'
+  /api/users/onboarding:
+    post:
+      tags:
+        - User
+      summary: User 온보딩 정보 저장
+      description: 온보딩 화면에서 입력받은 유저의 기본 정보 및 설문 결과 저장
+      operationId: saveOnboarding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseUserResponse'
+  /api/routines:
+    post:
+      tags:
+        - Routine
+      summary: Routine 생성
+      description: 새로운 루틴을 생성
+      operationId: createRoutine
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoutineRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseRoutineResponse'
+  /api/routines/groups:
+    get:
+      tags:
+        - Routine Group
+      summary: Routine 그룹 목록 조회
+      description: 로그인한 유저의 루틴 그룹 목록을 조회합니다.
+      operationId: findAllRoutineGroups
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseListRoutineGroupResponse'
+    post:
+      tags:
+        - Routine Group
+      summary: Routine 그룹 생성
+      description: 루틴 그룹을 생성합니다.
+      operationId: createRoutineGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoutineGroupRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseRoutineGroupResponse'
+  /api/users/oauth2/login/success:
+    get:
+      tags:
+        - User
+      operationId: oauthLoginSuccess
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /api/routines/filter:
+    get:
+      tags:
+        - Routine
+      summary: Routine 조회 (필터)
+      description: 전체, 그룹별, 종료되지 않은 루틴 조회 + 페이징
+      operationId: getFilteredRoutines
+      parameters:
+        - name: groupId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: activeOnly
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: page
+          in: query
+          description: Zero-based page index (0..N)
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          description: The size of the page to be returned
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+        - name: sort
+          in: query
+          description: 'Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.'
+          required: false
+          schema:
+            type: array
+            default:
+              - createdAt,DESC
+            items:
+              type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponsePageRoutineResponse'
+components:
+  schemas:
+    SurveyDto:
+      type: object
+      properties:
+        question:
+          type: string
+        answer:
+          type: string
+    ApiResponseSurveyResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        code:
+          type: string
+        data:
+          $ref: '#/components/schemas/SurveyResponse'
+    SurveyResponse:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int32
+        savedSurveys:
+          type: array
+          items:
+            $ref: '#/components/schemas/SurveyDto'
+    UserBasicInfoDto:
+      type: object
+      properties:
+        name:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        gender:
+          type: string
+    ApiResponseUserBasicInfoDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        code:
+          type: string
+        data:
+          $ref: '#/components/schemas/UserBasicInfoDto'
+    RoutineUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        cycleDays:
+          type: string
+        timesPerDay:
+          type: integer
+          format: int32
+        preferredTime:
+          type: string
+        endDate:
+          type: string
+          format: date
+        color:
+          type: string
+        groupId:
+          type: integer
+          format: int64
+    ApiResponseRoutineResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        code:
+          type: string
+        data:
+          $ref: '#/components/schemas/RoutineResponse'
+    RoutineResponse:
+      type: object
+      properties:
+        routineId:
+          type: integer
+          format: int64
+        groupId:
+          type: integer
+          format: int64
+        name:
+          type: string
+    UserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        gender:
+          type: string
+        surveys:
+          type: array
+          items:
+            $ref: '#/components/schemas/SurveyDto'
+    ApiResponseUserResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        code:
+          type: string
+        data:
+          $ref: '#/components/schemas/UserResponse'
+    UserResponse:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        email:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        gender:
+          type: string
+        surveyResponse:
+          $ref: '#/components/schemas/SurveyResponse'
+    RoutineRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        cycleDays:
+          type: string
+        timesPerDay:
+          type: integer
+          format: int32
+        preferredTime:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        color:
+          type: string
+        groupId:
+          type: integer
+          format: int64
+    RoutineGroupRequest:
+      type: object
+      properties:
+        name:
+          type: string
+    ApiResponseRoutineGroupResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        code:
+          type: string
+        data:
+          $ref: '#/components/schemas/RoutineGroupResponse'
+    RoutineGroupResponse:
+      type: object
+      properties:
+        groupId:
+          type: integer
+          format: int64
+        name:
+          type: string
+    ApiResponseListRoutineGroupResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        code:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutineGroupResponse'
+    ApiResponsePageRoutineResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        code:
+          type: string
+        data:
+          $ref: '#/components/schemas/PageRoutineResponse'
+    PageRoutineResponse:
+      type: object
+      properties:
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutineResponse'
+        number:
+          type: integer
+          format: int32
+        sort:
+          $ref: '#/components/schemas/SortObject'
+        first:
+          type: boolean
+        last:
+          type: boolean
+        numberOfElements:
+          type: integer
+          format: int32
+        pageable:
+          $ref: '#/components/schemas/PageableObject'
+        empty:
+          type: boolean
+    PageableObject:
+      type: object
+      properties:
+        offset:
+          type: integer
+          format: int64
+        sort:
+          $ref: '#/components/schemas/SortObject'
+        pageSize:
+          type: integer
+          format: int32
+        pageNumber:
+          type: integer
+          format: int32
+        paged:
+          type: boolean
+        unpaged:
+          type: boolean
+    SortObject:
+      type: object
+      properties:
+        empty:
+          type: boolean
+        sorted:
+          type: boolean
+        unsorted:
+          type: boolean
+  securitySchemes:
+    bearer-key:
+      type: http
+      description: JWT 토큰 키를 입력해주세요!
+      scheme: bearer
+      bearerFormat: JWT
