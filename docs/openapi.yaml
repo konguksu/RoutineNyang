@@ -1,11 +1,11 @@
 openapi: 3.0.3
 info:
-  title: 루틴냥 API 명세서
+  title: 😽 루틴냥 API 명세서
   description: AI based routine Recommendation Service - 루틴냥 Server의 API 명세서입니다.
   version: v1
 servers:
   - url: http://localhost:8080
-    description: Generated server url
+    description: Local Test Server
 security:
   - bearer-key: []
 tags:
