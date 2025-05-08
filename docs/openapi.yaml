@@ -85,6 +85,26 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiResponseUserBasicInfoDto'
   /api/routines/{routine-id}:
+    get:
+      tags:
+        - Routine
+      summary: Routine 조회 (id)
+      description: 루틴의 고유 식별자(id)로 루틴 상세 정보 조회
+      operationId: getRoutinesById
+      parameters:
+        - name: routine-id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseRoutineDetailResponse'
     put:
       tags:
         - Routine
@@ -516,6 +536,51 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RoutineResponse'
+    ApiResponseRoutineDetailResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        code:
+          type: string
+        data:
+          $ref: '#/components/schemas/RoutineDetailResponse'
+    RoutineDetailResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        repeatDays:
+          type: array
+          items:
+            type: string
+            enum:
+              - MONDAY
+              - TUESDAY
+              - WEDNESDAY
+              - THURSDAY
+              - FRIDAY
+              - SATURDAY
+              - SUNDAY
+          uniqueItems: true
+        timesPerDay:
+          type: integer
+          format: int32
+        preferredTime:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        color:
+          type: string
+        groupId:
+          type: integer
+          format: int64
     ApiResponseListRoutineGroupResponse:
       type: object
       properties:
@@ -553,9 +618,6 @@ components:
           type: boolean
         last:
           type: boolean
-        numberOfElements:
-          type: integer
-          format: int32
         size:
           type: integer
           format: int32
@@ -568,6 +630,9 @@ components:
           format: int32
         sort:
           $ref: '#/components/schemas/SortObject'
+        numberOfElements:
+          type: integer
+          format: int32
         pageable:
           $ref: '#/components/schemas/PageableObject'
         empty:
@@ -586,18 +651,18 @@ components:
         pageNumber:
           type: integer
           format: int32
-        unpaged:
-          type: boolean
         paged:
+          type: boolean
+        unpaged:
           type: boolean
     SortObject:
       type: object
       properties:
         empty:
           type: boolean
-        unsorted:
-          type: boolean
         sorted:
+          type: boolean
+        unsorted:
           type: boolean
     ApiResponseVoid:
       type: object
