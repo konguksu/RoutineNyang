@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: 😽 루틴냥 API 명세서
+  title: 🐈 루틴냥 API 명세서
   description: AI based routine Recommendation Service - 루틴냥 Server의 API 명세서입니다.
   version: v1
 servers:
@@ -85,11 +85,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiResponseUserBasicInfoDto'
   /api/routines/{routine-id}:
+    get:
+      tags:
+        - Routine
+      summary: Routine 조회 (id)
+      description: 루틴의 고유 식별자(id)로 루틴 상세 정보 조회
+      operationId: getRoutinesById
+      parameters:
+        - name: routine-id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseRoutineDetailResponse'
     put:
       tags:
         - Routine
       summary: Routine 수정
-      description: 기존에 존재하던 루틴을 수정
+      description: 루틴의 세부 정보 수정
       operationId: updateRoutine
       parameters:
         - name: routine-id
@@ -111,6 +131,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponseRoutineResponse'
+    delete:
+      tags:
+        - Routine
+      summary: Routine 삭제
+      description: 루틴 삭제
+      operationId: deleteRoutine
+      parameters:
+        - name: routine-id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseVoid'
   /api/users/onboarding:
     post:
       tags:
@@ -132,6 +172,26 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiResponseUserResponse'
   /api/routines:
+    get:
+      tags:
+        - Routine
+      summary: Routine 목록 조회 (날짜)
+      description: 특정 날짜에 수행해야 하는 루틴 목록 조회
+      operationId: getRoutinesByDate
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseListRoutineResponse'
     post:
       tags:
         - Routine
@@ -188,6 +248,8 @@ paths:
     get:
       tags:
         - User
+      summary: 구글 로그인 성공 시 응답
+      description: 유저의 이름, 온보딩 완료 여부, jwt 토큰 반환
       operationId: oauthLoginSuccess
       responses:
         '200':
@@ -195,14 +257,12 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
+                $ref: '#/components/schemas/UserLoginSuccessResponse'
   /api/routines/filter:
     get:
       tags:
         - Routine
-      summary: Routine 조회 (필터)
+      summary: Routine 목록 조회 (필터)
       description: 전체, 그룹별, 종료되지 않은 루틴 조회 + 페이징
       operationId: getFilteredRoutines
       parameters:
@@ -307,8 +367,19 @@ components:
       properties:
         name:
           type: string
-        cycleDays:
-          type: string
+        repeatDays:
+          type: array
+          items:
+            type: string
+            enum:
+              - MONDAY
+              - TUESDAY
+              - WEDNESDAY
+              - THURSDAY
+              - FRIDAY
+              - SATURDAY
+              - SUNDAY
+          uniqueItems: true
         timesPerDay:
           type: integer
           format: int32
@@ -389,8 +460,19 @@ components:
       properties:
         name:
           type: string
-        cycleDays:
-          type: string
+        repeatDays:
+          type: array
+          items:
+            type: string
+            enum:
+              - MONDAY
+              - TUESDAY
+              - WEDNESDAY
+              - THURSDAY
+              - FRIDAY
+              - SATURDAY
+              - SUNDAY
+          uniqueItems: true
         timesPerDay:
           type: integer
           format: int32
@@ -431,6 +513,74 @@ components:
           format: int64
         name:
           type: string
+    UserLoginSuccessResponse:
+      type: object
+      description: 구글 로그인 성공 후 응답
+      properties:
+        onboardingFinished:
+          type: boolean
+        userName:
+          type: string
+        token:
+          type: string
+    ApiResponseListRoutineResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        code:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutineResponse'
+    ApiResponseRoutineDetailResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        code:
+          type: string
+        data:
+          $ref: '#/components/schemas/RoutineDetailResponse'
+    RoutineDetailResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        repeatDays:
+          type: array
+          items:
+            type: string
+            enum:
+              - MONDAY
+              - TUESDAY
+              - WEDNESDAY
+              - THURSDAY
+              - FRIDAY
+              - SATURDAY
+              - SUNDAY
+          uniqueItems: true
+        timesPerDay:
+          type: integer
+          format: int32
+        preferredTime:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        color:
+          type: string
+        groupId:
+          type: integer
+          format: int64
     ApiResponseListRoutineGroupResponse:
       type: object
       properties:
@@ -514,6 +664,17 @@ components:
           type: boolean
         unsorted:
           type: boolean
+    ApiResponseVoid:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        code:
+          type: string
+        data:
+          type: object
   securitySchemes:
     bearer-key:
       type: http
