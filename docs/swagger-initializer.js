@@ -13,7 +13,9 @@ window.onload = function() {
     plugins: [
       SwaggerUIBundle.plugins.DownloadUrl
     ],
-    layout: "StandaloneLayout"
+    layout: "StandaloneLayout",
+    operationsSorter: "method",     // 메서드 순 정렬 (get > post > put > delete)
+    tagsSorter: "alpha",            // 태그 알파벳 정렬
   });
 
   //</editor-fold>
