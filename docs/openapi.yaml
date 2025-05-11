@@ -23,6 +23,12 @@ paths:
       summary: User 설문 정보 조회
       description: 온보딩에서 입력받은 유저의 설문 결과 조회
       operationId: findSurveyAnswers
+      parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/User'
       responses:
         '200':
           description: OK
@@ -36,6 +42,12 @@ paths:
       summary: User 설문 정보 수정
       description: 유저의 설문 정보 수정
       operationId: updateSurveyAnswers
+      parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/User'
       requestBody:
         content:
           application/json:
@@ -58,6 +70,12 @@ paths:
       summary: User 기본 정보 조회
       description: 유저의 이름, 나이, 성별 조회
       operationId: findBasicUserInfo
+      parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/User'
       responses:
         '200':
           description: OK
@@ -71,6 +89,12 @@ paths:
       summary: User 기본 정보 수정
       description: 유저의 기본 정보 수정
       operationId: updateUserInfo
+      parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/User'
       requestBody:
         content:
           application/json:
@@ -90,7 +114,7 @@ paths:
         - Routine
       summary: Routine 조회 (id)
       description: 루틴의 고유 식별자(id)로 루틴 상세 정보 조회
-      operationId: getRoutinesById
+      operationId: find
       parameters:
         - name: routine-id
           in: path
@@ -110,7 +134,7 @@ paths:
         - Routine
       summary: Routine 수정
       description: 루틴의 세부 정보 수정
-      operationId: updateRoutine
+      operationId: update
       parameters:
         - name: routine-id
           in: path
@@ -136,9 +160,66 @@ paths:
         - Routine
       summary: Routine 삭제
       description: 루틴 삭제
-      operationId: deleteRoutine
+      operationId: delete
       parameters:
         - name: routine-id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseVoid'
+  /api/routines/groups/{routine-group-id}:
+    put:
+      tags:
+        - Routine Group
+      summary: Routine Group 수정
+      description: 루틴 그룹의 이름을 수정합니다.
+      operationId: update_1
+      parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/User'
+        - name: routine-group-id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoutineGroupRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseRoutineGroupResponse'
+    delete:
+      tags:
+        - Routine Group
+      summary: Routine Group 삭제
+      description: 루틴 그룹을 삭제합니다.
+      operationId: delete_1
+      parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/User'
+        - name: routine-group-id
           in: path
           required: true
           schema:
@@ -158,6 +239,12 @@ paths:
       summary: User 온보딩 정보 저장
       description: 온보딩 화면에서 입력받은 유저의 기본 정보 및 설문 결과 저장
       operationId: saveOnboarding
+      parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/User'
       requestBody:
         content:
           application/json:
@@ -177,8 +264,13 @@ paths:
         - Routine
       summary: Routine 목록 조회 (날짜)
       description: 특정 날짜에 수행해야 하는 루틴 목록 조회
-      operationId: getRoutinesByDate
+      operationId: findAllByDate
       parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/User'
         - name: date
           in: query
           required: true
@@ -197,7 +289,13 @@ paths:
         - Routine
       summary: Routine 생성
       description: 새로운 루틴을 생성
-      operationId: createRoutine
+      operationId: create
+      parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/User'
       requestBody:
         content:
           application/json:
@@ -215,9 +313,15 @@ paths:
     get:
       tags:
         - Routine Group
-      summary: Routine 그룹 목록 조회
+      summary: Routine Group 목록 조회
       description: 로그인한 유저의 루틴 그룹 목록을 조회합니다.
-      operationId: findAllRoutineGroups
+      operationId: findAll
+      parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/User'
       responses:
         '200':
           description: OK
@@ -228,9 +332,15 @@ paths:
     post:
       tags:
         - Routine Group
-      summary: Routine 그룹 생성
+      summary: Routine Group 생성
       description: 루틴 그룹을 생성합니다.
-      operationId: createRoutineGroup
+      operationId: create_1
+      parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/User'
       requestBody:
         content:
           application/json:
@@ -264,8 +374,13 @@ paths:
         - Routine
       summary: Routine 목록 조회 (필터)
       description: 전체, 그룹별, 종료되지 않은 루틴 조회 + 페이징
-      operationId: getFilteredRoutines
+      operationId: findAllWithFilter
       parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/User'
         - name: groupId
           in: query
           required: false
@@ -313,6 +428,51 @@ paths:
                 $ref: '#/components/schemas/ApiResponsePageRoutineResponse'
 components:
   schemas:
+    User:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+        name:
+          type: string
+        onBoardingFinished:
+          type: boolean
+        dateOfBirth:
+          type: string
+          format: date
+        gender:
+          type: string
+        userSurveys:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSurvey'
+    UserSurvey:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        id:
+          type: integer
+          format: int64
+        question:
+          type: string
+        answer:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
     SurveyDto:
       type: object
       properties:
@@ -415,6 +575,30 @@ components:
           format: int64
         name:
           type: string
+    RoutineGroupRequest:
+      type: object
+      properties:
+        name:
+          type: string
+    ApiResponseRoutineGroupResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        code:
+          type: string
+        data:
+          $ref: '#/components/schemas/RoutineGroupResponse'
+    RoutineGroupResponse:
+      type: object
+      properties:
+        groupId:
+          type: integer
+          format: int64
+        name:
+          type: string
     UserRequest:
       type: object
       properties:
@@ -489,30 +673,6 @@ components:
         groupId:
           type: integer
           format: int64
-    RoutineGroupRequest:
-      type: object
-      properties:
-        name:
-          type: string
-    ApiResponseRoutineGroupResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        message:
-          type: string
-        code:
-          type: string
-        data:
-          $ref: '#/components/schemas/RoutineGroupResponse'
-    RoutineGroupResponse:
-      type: object
-      properties:
-        groupId:
-          type: integer
-          format: int64
-        name:
-          type: string
     UserLoginSuccessResponse:
       type: object
       description: 구글 로그인 성공 후 응답
@@ -645,14 +805,14 @@ components:
           format: int64
         sort:
           $ref: '#/components/schemas/SortObject'
+        paged:
+          type: boolean
         pageSize:
           type: integer
           format: int32
         pageNumber:
           type: integer
           format: int32
-        paged:
-          type: boolean
         unpaged:
           type: boolean
     SortObject:
