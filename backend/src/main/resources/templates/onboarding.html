@@ -1,0 +1,45 @@
+<script>
+    function submitOnboarding(event) {
+        event.preventDefault();
+
+        const request = {
+            name: document.querySelector('input[name="name"]').value,
+            dateOfBirth: document.querySelector('input[name="dateOfBirth"]').value,
+            gender: document.querySelector('select[name="gender"]').value,
+            surveys: [{
+                question: "요즘 가장 관심 있는 주제는 무엇인가요?",
+                answer: document.querySelector('input[name="answer1"]').value
+            }]
+        };
+
+        fetch('/api/users/onboarding', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(request)
+        }).then(res => {
+            if (res.ok) {
+                window.location.href = '/home';
+            } else {
+                alert("온보딩 저장 실패");
+            }
+        });
+    }
+</script>
+
+<form onsubmit="submitOnboarding(event)">
+    이름: <input type="text" name="name" th:value="${userName}" /><br/>
+    생년월일: <input type="date" name="dateOfBirth" /><br/>
+    성별:
+    <select name="gender">
+        <option value="MALE">남성</option>
+        <option value="FEMALE">여성</option>
+    </select><br/>
+
+    <label>질문1:</label>
+    <p>요즘 가장 관심 있는 주제는 무엇인가요?</p>
+    답변1: <input type="text" name="answer1" /><br/>
+
+    <button type="submit">제출</button>
+</form>

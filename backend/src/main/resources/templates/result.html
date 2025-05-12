@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>로그인 결과</title></head>
+<body>
+
+<h1 th:if="${userName != null}" th:text="'안녕하세요, ' + ${userName} + '님'"></h1>
+<p th:if="${error != null}" th:text="${error}"></p>
+
+<div th:if="${onBoardingFinished == true}">
+    <p>온보딩이 완료되었습니다.</p>
+    <a href="/home">홈으로 이동</a>
+</div>
+
+<div th:if="${onBoardingFinished == false}">
+    <p>온보딩이 아직 완료되지 않았습니다.</p>
+    <a href="/onboarding">온보딩 하러 가기</a>
+</div>
+
+<p><strong>JWT 토큰:</strong></p>
+<pre th:text="${token}">토큰 없음</pre>
+
+</body>
+</html>
