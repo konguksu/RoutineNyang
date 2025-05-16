@@ -7,10 +7,9 @@ import com.routinenyang.backend.routine.dto.RoutineResponse;
 import com.routinenyang.backend.routine.dto.RoutineUpdateRequest;
 import com.routinenyang.backend.routine.entity.Routine;
 import com.routinenyang.backend.routine.entity.RoutineGroup;
-import com.routinenyang.backend.routine.entity.RoutineSuccess;
+import com.routinenyang.backend.routine.repository.RoutineExecutionRepository;
 import com.routinenyang.backend.routine.repository.RoutineGroupRepository;
 import com.routinenyang.backend.routine.repository.RoutineRepository;
-import com.routinenyang.backend.routine.repository.RoutineSuccessRepository;
 import com.routinenyang.backend.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,9 +29,9 @@ import static com.routinenyang.backend.global.exception.ErrorCode.*;
 public class RoutineService {
     private final RoutineRepository routineRepository;
     private final RoutineGroupRepository routineGroupRepository;
-    private final RoutineSuccessRepository routineSuccessRepository;
+    private final RoutineExecutionRepository routineExecutionRepository;
 
-    public RoutineResponse createRoutine(User user, RoutineRequest request) {
+    public RoutineResponse create(User user, RoutineRequest request) {
         RoutineGroup routineGroup = routineGroupRepository.findById(request.getGroupId()).orElseThrow(
                 () -> new CustomException(ROUTINE_GROUP_NOT_FOUND));
 

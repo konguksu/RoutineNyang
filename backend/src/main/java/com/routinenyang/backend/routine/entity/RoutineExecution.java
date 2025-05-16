@@ -26,9 +26,9 @@ import static jakarta.persistence.GenerationType.IDENTITY;
                 @UniqueConstraint(columnNames = {"routine_id", "date"})
         }
 )
-public class RoutineSuccess extends BaseEntity {
+public class RoutineExecution extends BaseEntity {
 
-    @Id @Column(name = "success_id")
+    @Id @Column(name = "execution_id")
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
@@ -39,4 +39,14 @@ public class RoutineSuccess extends BaseEntity {
 
     // 수행 날짜
     private LocalDate date;
+
+    // 성공 여부
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean completed = false;
+
+    // 성공 여부 반대로 변환
+    public void toggle() {
+        this.completed = !this.completed;
+    }
 }
