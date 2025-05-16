@@ -6,6 +6,7 @@ import com.routinenyang.backend.global.response.ResponseFactory;
 import com.routinenyang.backend.user.dto.*;
 import com.routinenyang.backend.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class UserController {
     @PostMapping("/onboarding")
     @Operation(summary = "User 온보딩 정보 저장", description = "온보딩 화면에서 입력받은 유저의 기본 정보 및 설문 결과 저장")
     public ResponseEntity<ApiResponse<UserResponse>> saveOnboarding(
-            @CurrentUser User user,
+            @Parameter(hidden = true) @CurrentUser User user,
             @RequestBody UserRequest request) {
         return ResponseFactory.ok(userService.saveUserOnboarding(user, request));
     }
@@ -46,7 +47,7 @@ public class UserController {
     @PutMapping("/info/basics")
     @Operation(summary = "User 기본 정보 수정", description = "유저의 기본 정보 수정")
     public ResponseEntity<ApiResponse<UserBasicInfoDto>> updateUserInfo(
-            @CurrentUser User user,
+            @Parameter(hidden = true) @CurrentUser User user,
             @RequestBody UserBasicInfoDto request) {
         return ResponseFactory.ok(userService.updateBasicInfo(user, request));
     }
@@ -55,7 +56,7 @@ public class UserController {
     @PutMapping("/info/survey-answers")
     @Operation(summary = "User 설문 정보 수정", description = "유저의 설문 정보 수정")
     public ResponseEntity<ApiResponse<SurveyResponse>> updateSurveyAnswers(
-            @CurrentUser User user,
+            @Parameter(hidden = true) @CurrentUser User user,
             @RequestBody List<SurveyDto> request) {
         return ResponseFactory.ok(userService.updateAnswers(user, request));
     }

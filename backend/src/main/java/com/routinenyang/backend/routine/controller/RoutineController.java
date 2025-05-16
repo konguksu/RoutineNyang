@@ -4,6 +4,7 @@ import com.routinenyang.backend.auth.resolver.CurrentUser;
 import com.routinenyang.backend.routine.dto.RoutineDetailResponse;
 import com.routinenyang.backend.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -35,15 +36,15 @@ public class RoutineController {
     @PostMapping
     @Operation(summary = "Routine 생성", description = "새로운 루틴을 생성")
     public ResponseEntity<ApiResponse<RoutineResponse>> create(
-            @CurrentUser User user,
+            @Parameter(hidden = true) @CurrentUser User user,
             @RequestBody RoutineRequest request) {
-        return ResponseFactory.created(routineService.createRoutine(user, request));
+        return ResponseFactory.created(routineService.create(user, request));
     }
 
     @GetMapping("/filter")
     @Operation(summary = "Routine 목록 조회 (필터)", description = "전체, 그룹별, 종료되지 않은 루틴 조회 + 페이징")
     public ResponseEntity<ApiResponse<Page<RoutineResponse>>> findAllWithFilter(
-            @CurrentUser User user,
+            @Parameter(hidden = true) @CurrentUser User user,
             @RequestParam(required = false) Long groupId,
             @RequestParam(defaultValue = "false") boolean activeOnly,
             @ParameterObject
@@ -56,7 +57,7 @@ public class RoutineController {
     @GetMapping
     @Operation(summary = "Routine 목록 조회 (날짜)", description = "특정 날짜에 수행해야 하는 루틴 목록 조회")
     public ResponseEntity<ApiResponse<List<RoutineResponse>>> findAllByDate(
-            @CurrentUser User user,
+            @Parameter(hidden = true) @CurrentUser User user,
             @RequestParam LocalDate date
     ) {
         return ResponseFactory.ok(routineService.findAllByDate(user, date));
