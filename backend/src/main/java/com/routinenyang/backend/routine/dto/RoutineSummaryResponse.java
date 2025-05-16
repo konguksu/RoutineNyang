@@ -1,20 +1,18 @@
 package com.routinenyang.backend.routine.dto;
 
+import com.routinenyang.backend.routine.entity.Routine;
 import lombok.Builder;
 import lombok.Getter;
-import com.routinenyang.backend.routine.entity.Routine;
 
 @Getter
 @Builder
-public class RoutineResponse {
+public class RoutineSummaryResponse {
     private Long routineId;
-    private Long groupId;
     private String name;
 
-    public static RoutineResponse from(Routine routine) {
-        return RoutineResponse.builder()
+    public static RoutineSummaryResponse from(Routine routine) {
+        return RoutineSummaryResponse.builder()
                 .routineId(routine.getId())
-                .groupId(routine.getGroup().getId())
                 .name(routine.getName())
                 .build();
     }

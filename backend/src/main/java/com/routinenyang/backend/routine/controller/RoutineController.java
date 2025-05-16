@@ -1,7 +1,7 @@
 package com.routinenyang.backend.routine.controller;
 
 import com.routinenyang.backend.auth.resolver.CurrentUser;
-import com.routinenyang.backend.routine.dto.RoutineDetailResponse;
+import com.routinenyang.backend.routine.dto.*;
 import com.routinenyang.backend.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,9 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.routinenyang.backend.global.response.ApiResponse;
 import com.routinenyang.backend.global.response.ResponseFactory;
-import com.routinenyang.backend.routine.dto.RoutineRequest;
-import com.routinenyang.backend.routine.dto.RoutineResponse;
-import com.routinenyang.backend.routine.dto.RoutineUpdateRequest;
 import com.routinenyang.backend.routine.service.RoutineService;
 
 import java.time.LocalDate;
@@ -35,7 +32,7 @@ public class RoutineController {
 
     @PostMapping
     @Operation(summary = "Routine 생성", description = "새로운 루틴을 생성")
-    public ResponseEntity<ApiResponse<RoutineResponse>> create(
+    public ResponseEntity<ApiResponse<RoutineSummaryResponse>> create(
             @Parameter(hidden = true) @CurrentUser User user,
             @RequestBody RoutineRequest request) {
         return ResponseFactory.created(routineService.create(user, request));
@@ -43,7 +40,7 @@ public class RoutineController {
 
     @GetMapping("/filter")
     @Operation(summary = "Routine 목록 조회 (필터)", description = "전체, 그룹별, 종료되지 않은 루틴 조회 + 페이징")
-    public ResponseEntity<ApiResponse<Page<RoutineResponse>>> findAllWithFilter(
+    public ResponseEntity<ApiResponse<Page<RoutineSummaryResponse>>> findAllWithFilter(
             @Parameter(hidden = true) @CurrentUser User user,
             @RequestParam(required = false) Long groupId,
             @RequestParam(defaultValue = "false") boolean activeOnly,
@@ -55,12 +52,12 @@ public class RoutineController {
     }
 
     @GetMapping
-    @Operation(summary = "Routine 목록 조회 (날짜)", description = "특정 날짜에 수행해야 하는 루틴 목록 조회")
-    public ResponseEntity<ApiResponse<List<RoutineResponse>>> findAllByDate(
+    @Operation(summary = "Routine Status 목록 조회 (날짜)", description = "특정 날짜에 수행해야 하는 루틴의 수행 상태 목록 조회")
+    public ResponseEntity<ApiResponse<List<RoutineStatusResponse>>> findAllStatusByDate(
             @Parameter(hidden = true) @CurrentUser User user,
             @RequestParam LocalDate date
     ) {
-        return ResponseFactory.ok(routineService.findAllByDate(user, date));
+        return ResponseFactory.ok(routineService.findAllStatusByDate(user, date));
     }
 
     @GetMapping("{routine-id}")
@@ -73,7 +70,7 @@ public class RoutineController {
 
     @PutMapping("{routine-id}")
     @Operation(summary = "Routine 수정", description = "루틴의 세부 정보 수정")
-    public ResponseEntity<ApiResponse<RoutineResponse>> update(
+    public ResponseEntity<ApiResponse<RoutineSummaryResponse>> update(
             @RequestBody RoutineUpdateRequest request, @PathVariable("routine-id") Long routineId) {
         return ResponseFactory.ok(routineService.updateById(routineId, request));
     }
