@@ -1,7 +1,6 @@
 package com.routinenyang.backend.routine.dto;
 
 import com.routinenyang.backend.routine.entity.Routine;
-import com.routinenyang.backend.routine.entity.RoutineGroup;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -11,7 +10,7 @@ import java.util.Set;
 
 @Builder
 @Getter
-public class RoutineDetailResponse {
+public class RoutineResponse {
     private String name;
     private Set<DayOfWeek> repeatDays;
     private String preferredTime;
@@ -20,8 +19,8 @@ public class RoutineDetailResponse {
     private String color;
     private Long groupId;
 
-    public static RoutineDetailResponse from(Routine routine) {
-        return RoutineDetailResponse.builder()
+    public static RoutineResponse from(Routine routine) {
+        return RoutineResponse.builder()
                 .name(routine.getName())
                 .repeatDays(routine.getRepeatDays())
                 .preferredTime(routine.getPreferredTime())

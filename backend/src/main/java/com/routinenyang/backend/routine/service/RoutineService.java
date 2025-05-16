@@ -87,11 +87,11 @@ public class RoutineService {
                 .toList();
     }
 
-    public RoutineDetailResponse findById(Long routineId) {
+    public RoutineResponse findById(Long routineId) {
         Routine routine = routineRepository.findById(routineId).orElseThrow(
                 () -> new CustomException(ROUTINE_NOT_FOUND)
         );
-        return RoutineDetailResponse.from(routine);
+        return RoutineResponse.from(routine);
     }
 
     public void deleteById(Long routineId) {

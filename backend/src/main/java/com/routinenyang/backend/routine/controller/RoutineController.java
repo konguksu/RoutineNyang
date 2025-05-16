@@ -62,7 +62,7 @@ public class RoutineController {
 
     @GetMapping("{routine-id}")
     @Operation(summary = "Routine 조회 (id)", description = "루틴의 고유 식별자(id)로 루틴 상세 정보 조회")
-    public ResponseEntity<ApiResponse<RoutineDetailResponse>> find(
+    public ResponseEntity<ApiResponse<RoutineResponse>> find(
             @PathVariable("routine-id") Long id
     ) {
         return ResponseFactory.ok(routineService.findById(id));
