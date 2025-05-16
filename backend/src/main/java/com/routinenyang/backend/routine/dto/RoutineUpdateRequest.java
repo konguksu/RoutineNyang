@@ -12,7 +12,6 @@ import java.util.Set;
 public class RoutineUpdateRequest {
     private String name;
     private Set<DayOfWeek> repeatDays;
-    private Integer timesPerDay;
     private String preferredTime;
     private LocalDate endDate;
     private String color;

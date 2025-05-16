@@ -67,7 +67,7 @@ public class RoutineController {
     public ResponseEntity<ApiResponse<RoutineDetailResponse>> find(
             @PathVariable("routine-id") Long id
     ) {
-        return ResponseFactory.ok(routineService.findRoutineById(id));
+        return ResponseFactory.ok(routineService.findById(id));
     }
 
     @PutMapping("{routine-id}")

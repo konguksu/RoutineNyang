@@ -7,8 +7,10 @@ import com.routinenyang.backend.routine.dto.RoutineResponse;
 import com.routinenyang.backend.routine.dto.RoutineUpdateRequest;
 import com.routinenyang.backend.routine.entity.Routine;
 import com.routinenyang.backend.routine.entity.RoutineGroup;
+import com.routinenyang.backend.routine.entity.RoutineSuccess;
 import com.routinenyang.backend.routine.repository.RoutineGroupRepository;
 import com.routinenyang.backend.routine.repository.RoutineRepository;
+import com.routinenyang.backend.routine.repository.RoutineSuccessRepository;
 import com.routinenyang.backend.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,6 +30,7 @@ import static com.routinenyang.backend.global.exception.ErrorCode.*;
 public class RoutineService {
     private final RoutineRepository routineRepository;
     private final RoutineGroupRepository routineGroupRepository;
+    private final RoutineSuccessRepository routineSuccessRepository;
 
     public RoutineResponse createRoutine(User user, RoutineRequest request) {
         RoutineGroup routineGroup = routineGroupRepository.findById(request.getGroupId()).orElseThrow(
@@ -37,7 +40,6 @@ public class RoutineService {
                 .userId(user.getId())
                 .name(request.getName())
                 .repeatDays(request.getRepeatDays())
-                .timesPerDay(request.getTimesPerDay())
                 .preferredTime(request.getPreferredTime())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
@@ -53,8 +55,8 @@ public class RoutineService {
                 () -> new CustomException(ROUTINE_NOT_FOUND));
         RoutineGroup group = routineGroupRepository.findById(request.getGroupId()).orElseThrow(
                 () -> new CustomException(ROUTINE_GROUP_NOT_FOUND));
-        routine.update(request.getName(), request.getRepeatDays(), request.getTimesPerDay(),
-                request.getPreferredTime(), request.getEndDate(), request.getColor(), group);
+        routine.update(request.getName(), request.getRepeatDays(), request.getPreferredTime(),
+                request.getEndDate(), request.getColor(), group);
 
         return RoutineResponse.from(routine);
     }
@@ -84,7 +86,7 @@ public class RoutineService {
                 .toList();
     }
 
-    public RoutineDetailResponse findRoutineById(Long routineId) {
+    public RoutineDetailResponse findById(Long routineId) {
         Routine routine = routineRepository.findById(routineId).orElseThrow(
                 () -> new CustomException(ROUTINE_NOT_FOUND)
         );

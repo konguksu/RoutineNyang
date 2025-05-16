@@ -39,7 +39,6 @@ public class Routine extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Set<DayOfWeek> repeatDays;
 
-    private Integer timesPerDay;
     private String preferredTime;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -54,10 +53,9 @@ public class Routine extends BaseEntity {
     @Builder.Default
     private boolean deleted = false;
 
-    public void update(String name, Set<DayOfWeek> repeatDays, Integer timesPerDay, String preferredTime, LocalDate endDate, String color, RoutineGroup group) {
+    public void update(String name, Set<DayOfWeek> repeatDays, String preferredTime, LocalDate endDate, String color, RoutineGroup group) {
         this.name = name;
         this.repeatDays = repeatDays;
-        this.timesPerDay = timesPerDay;
         this.preferredTime = preferredTime;
         this.endDate = endDate;
         this.color = color;

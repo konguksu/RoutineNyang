@@ -14,7 +14,6 @@ import java.util.Set;
 public class RoutineDetailResponse {
     private String name;
     private Set<DayOfWeek> repeatDays;
-    private Integer timesPerDay;
     private String preferredTime;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -25,7 +24,6 @@ public class RoutineDetailResponse {
         return RoutineDetailResponse.builder()
                 .name(routine.getName())
                 .repeatDays(routine.getRepeatDays())
-                .timesPerDay(routine.getTimesPerDay())
                 .preferredTime(routine.getPreferredTime())
                 .startDate(routine.getStartDate())
                 .endDate(routine.getEndDate())
