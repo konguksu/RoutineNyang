@@ -1,8 +1,10 @@
 package com.routinenyang.backend.routine.service;
 
+import com.routinenyang.backend.global.exception.CustomException;
 import com.routinenyang.backend.routine.entity.Routine;
 import com.routinenyang.backend.routine.entity.RoutineExecution;
 import com.routinenyang.backend.routine.repository.RoutineExecutionRepository;
+import com.routinenyang.backend.routine.repository.RoutineRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,14 +15,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.routinenyang.backend.global.exception.ErrorCode.ROUTINE_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class RoutineExecutionService {
+    private final RoutineRepository routineRepository;
     private final RoutineExecutionRepository routineExecutionRepository;
 
     // 루틴 수행 여부 토글
-    public void toggleExecution(Routine routine, LocalDate date) {
+    public void toggleExecution(Long routineId, LocalDate date) {
+        Routine routine = routineRepository.findById(routineId).orElseThrow(
+                () -> new CustomException(ROUTINE_NOT_FOUND)
+        );
         // 루틴 수행 기록 조회, 없으면 생성
         RoutineExecution record = routineExecutionRepository.findByRoutineAndDate(routine, date)
                 .orElseGet(() -> RoutineExecution.builder()
@@ -49,7 +57,7 @@ public class RoutineExecutionService {
         return routines.stream()
                 .collect(Collectors.toMap(
                         Routine::getId,
-                        completedIds::contains
+                        routine -> completedIds.contains(routine.getId())
                 ));
     }
 }

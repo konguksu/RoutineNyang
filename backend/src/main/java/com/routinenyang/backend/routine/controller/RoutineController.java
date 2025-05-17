@@ -1,7 +1,11 @@
 package com.routinenyang.backend.routine.controller;
 
 import com.routinenyang.backend.auth.resolver.CurrentUser;
+import com.routinenyang.backend.global.response.ApiResponse;
+import com.routinenyang.backend.global.response.ResponseFactory;
 import com.routinenyang.backend.routine.dto.*;
+import com.routinenyang.backend.routine.service.RoutineExecutionService;
+import com.routinenyang.backend.routine.service.RoutineService;
 import com.routinenyang.backend.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,14 +17,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.routinenyang.backend.global.response.ApiResponse;
-import com.routinenyang.backend.global.response.ResponseFactory;
-import com.routinenyang.backend.routine.service.RoutineService;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.springframework.data.domain.Sort.Direction.*;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ import static org.springframework.data.domain.Sort.Direction.*;
 public class RoutineController {
 
     private final RoutineService routineService;
+    private final RoutineExecutionService routineExecutionService;
 
     @PostMapping
     @Operation(summary = "Routine 생성", description = "새로운 루틴을 생성")
@@ -83,4 +85,15 @@ public class RoutineController {
         routineService.deleteById(routineId);
         return ResponseFactory.noContent();
     }
+
+    @PatchMapping("/{routine-id}/toggle")
+    @Operation(summary = "Routine Execution 상태 토글", description = "루틴을 수행 완료한 상태라면 실패로, 실패한 상태라면 완료로 변경")
+    public ResponseEntity<ApiResponse<Void>> toggleExecution(
+            @PathVariable("routine-id") Long routineId,
+            @RequestParam LocalDate date
+    ) {
+        routineExecutionService.toggleExecution(routineId, date);
+        return ResponseFactory.ok((Void) null);
+    }
+
 }

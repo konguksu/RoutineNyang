@@ -88,7 +88,7 @@ public class RoutineService {
     }
 
     public RoutineResponse findById(Long routineId) {
-        Routine routine = routineRepository.findById(routineId).orElseThrow(
+        Routine routine = routineRepository.findByIdAndDeletedFalse(routineId).orElseThrow(
                 () -> new CustomException(ROUTINE_NOT_FOUND)
         );
         return RoutineResponse.from(routine);
