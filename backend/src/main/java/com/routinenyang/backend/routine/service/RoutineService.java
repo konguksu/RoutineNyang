@@ -6,7 +6,6 @@ import com.routinenyang.backend.routine.entity.Routine;
 import com.routinenyang.backend.routine.entity.RoutineGroup;
 import com.routinenyang.backend.routine.repository.RoutineGroupRepository;
 import com.routinenyang.backend.routine.repository.RoutineRepository;
-import com.routinenyang.backend.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,12 +28,12 @@ public class RoutineService {
 
     private final RoutineExecutionService routineExecutionService;
 
-    public RoutineSummaryResponse create(User user, RoutineRequest request) {
+    public RoutineSummaryResponse create(Long userId, RoutineRequest request) {
         RoutineGroup routineGroup = routineGroupRepository.findById(request.getGroupId()).orElseThrow(
                 () -> new CustomException(ROUTINE_GROUP_NOT_FOUND));
 
         Routine savedRoutine = routineRepository.save(Routine.builder()
-                .userId(user.getId())
+                .userId(userId)
                 .name(request.getName())
                 .repeatDays(request.getRepeatDays())
                 .preferredTime(request.getPreferredTime())
@@ -58,9 +57,8 @@ public class RoutineService {
         return RoutineSummaryResponse.from(routine);
     }
 
-    public Page<RoutineSummaryResponse> findAllWithFilter(User user, Long groupId, boolean activeOnly, Pageable pageable) {
+    public Page<RoutineSummaryResponse> findAllWithFilter(Long userId, Long groupId, boolean activeOnly, Pageable pageable) {
         LocalDate today = LocalDate.now();
-        Long userId = user.getId();
         Page<Routine> routines =
                 (groupId != null && activeOnly)
                     ? routineRepository.findByUserIdAndGroupIdAndEndDateAfterAndDeletedFalse(userId, groupId, today, pageable)
@@ -72,8 +70,7 @@ public class RoutineService {
         return routines.map(RoutineSummaryResponse::from);
     }
 
-    public List<RoutineStatusResponse> findAllStatusByDate(User user, LocalDate date) {
-        Long userId = user.getId();
+    public List<RoutineStatusResponse> findAllStatusByDate(Long userId, LocalDate date) {
         DayOfWeek dayOfWeek = date.getDayOfWeek(); // 파라미터로 받은 날짜의 요일
 
         // 해당 날짜에 수행해야하는 루틴 조회
@@ -87,8 +84,8 @@ public class RoutineService {
                 .toList();
     }
 
-    public RoutineResponse findById(Long routineId) {
-        Routine routine = routineRepository.findByIdAndDeletedFalse(routineId).orElseThrow(
+    public RoutineResponse findById(Long userId, Long routineId) {
+        Routine routine = routineRepository.findByIdAndUserIdAndDeletedFalse(routineId, userId).orElseThrow(
                 () -> new CustomException(ROUTINE_NOT_FOUND)
         );
         return RoutineResponse.from(routine);

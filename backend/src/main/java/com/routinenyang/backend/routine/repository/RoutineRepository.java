@@ -25,5 +25,5 @@ public interface RoutineRepository extends JpaRepository<Routine, Long> {
 
     List<Routine> findByGroupIdAndDeletedFalse(Long groupId);
 
-    Optional<Routine> findByIdAndDeletedFalse(Long routineId);
+    Optional<Routine> findByIdAndUserIdAndDeletedFalse(Long routineId, Long userId);
 }

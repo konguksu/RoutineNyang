@@ -37,7 +37,7 @@ public class RoutineController {
     public ResponseEntity<ApiResponse<RoutineSummaryResponse>> create(
             @Parameter(hidden = true) @CurrentUser User user,
             @RequestBody RoutineRequest request) {
-        return ResponseFactory.created(routineService.create(user, request));
+        return ResponseFactory.created(routineService.create(user.getId(), request));
     }
 
     @GetMapping("/filter")
@@ -50,7 +50,7 @@ public class RoutineController {
             @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = DESC)
             Pageable pageable
     ) {
-        return ResponseFactory.ok(routineService.findAllWithFilter(user, groupId, activeOnly, pageable));
+        return ResponseFactory.ok(routineService.findAllWithFilter(user.getId(), groupId, activeOnly, pageable));
     }
 
     @GetMapping
@@ -59,15 +59,16 @@ public class RoutineController {
             @Parameter(hidden = true) @CurrentUser User user,
             @RequestParam LocalDate date
     ) {
-        return ResponseFactory.ok(routineService.findAllStatusByDate(user, date));
+        return ResponseFactory.ok(routineService.findAllStatusByDate(user.getId(), date));
     }
 
     @GetMapping("{routine-id}")
-    @Operation(summary = "Routine 조회 (id)", description = "루틴의 고유 식별자(id)로 루틴 상세 정보 조회")
+    @Operation(summary = "Routine 속성 정보 조회", description = "루틴의 고유 식별자(id)로 수정 가능한 루틴 속성 조회")
     public ResponseEntity<ApiResponse<RoutineResponse>> find(
+            @Parameter(hidden = true) @CurrentUser User user,
             @PathVariable("routine-id") Long id
     ) {
-        return ResponseFactory.ok(routineService.findById(id));
+        return ResponseFactory.ok(routineService.findById(user.getId(), id));
     }
 
     @PutMapping("{routine-id}")
@@ -95,5 +96,4 @@ public class RoutineController {
         routineExecutionService.toggleExecution(routineId, date);
         return ResponseFactory.ok((Void) null);
     }
-
 }

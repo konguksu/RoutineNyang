@@ -16,6 +16,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(
+        name = "routine_group",
         indexes = {
                 @Index(name = "idx_routine_group_user_id", columnList = "user_id")
         },
