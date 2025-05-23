@@ -14,6 +14,7 @@ import static jakarta.persistence.GenerationType.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "user_survey")
 public class UserSurvey extends BaseEntity {
 
     @Id @GeneratedValue(strategy = IDENTITY)

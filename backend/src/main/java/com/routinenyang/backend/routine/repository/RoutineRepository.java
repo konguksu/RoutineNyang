@@ -10,6 +10,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface RoutineRepository extends JpaRepository<Routine, Long> {
     Page<Routine> findByUserIdAndGroupIdAndEndDateAfterAndDeletedFalse(Long userId, Long groupId, LocalDate today, Pageable pageable);
@@ -23,4 +24,6 @@ public interface RoutineRepository extends JpaRepository<Routine, Long> {
     List<Routine> findByUserIdAndCycleDayAndDateRange(Long userId, DayOfWeek dayOfWeek, LocalDate date);
 
     List<Routine> findByGroupIdAndDeletedFalse(Long groupId);
+
+    Optional<Routine> findByIdAndUserIdAndDeletedFalse(Long routineId, Long userId);
 }
