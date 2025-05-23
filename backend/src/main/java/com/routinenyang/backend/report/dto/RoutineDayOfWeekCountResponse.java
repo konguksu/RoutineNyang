@@ -8,6 +8,6 @@ import java.util.Map;
 
 @AllArgsConstructor
 @Getter
-public class RoutineDayOfWeekResponse {
+public class RoutineDayOfWeekCountResponse {
     Map<DayOfWeek, Integer> dayOfWeekCountMap;
 }

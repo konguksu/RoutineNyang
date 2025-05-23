@@ -24,8 +24,10 @@ public interface RoutineExecutionRepository extends JpaRepository<RoutineExecuti
             "ORDER BY e.date DESC")
     List<LocalDate> findAllCompletedDatesByRoutineIdOrderedDesc(@Param("routineId") Long routineId);
 
-    @Query("SELECT e.date FROM RoutineExecution e WHERE e.routine.id = :routineId AND e.completed = true AND e.date BETWEEN :start AND :end")
-    List<LocalDate> findAllCompletedDatesByRoutineIdBetween(@Param("routineId") Long routineId,
-                                                            @Param("start") LocalDate start,
-                                                            @Param("end") LocalDate end);
+    @Query("SELECT e.date FROM RoutineExecution e " +
+            "WHERE e.routine.id = :routineId AND e.completed = true AND e.date BETWEEN :start AND :end " +
+            "ORDER BY e.date DESC ")
+    List<LocalDate> findAllCompletedDatesByRoutineIdBetweenOrderedDesc(@Param("routineId") Long routineId,
+                                                                       @Param("start") LocalDate start,
+                                                                       @Param("end") LocalDate end);
 }

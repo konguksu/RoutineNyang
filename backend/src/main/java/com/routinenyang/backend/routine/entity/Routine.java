@@ -1,21 +1,21 @@
 package com.routinenyang.backend.routine.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import com.routinenyang.backend.global.base.BaseEntity;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
         indexes = {
                 // userId에 인덱스 추가
@@ -49,24 +49,35 @@ public class Routine extends BaseEntity {
     @JoinColumn(name = "group_id")
     private RoutineGroup group;
 
+    @OneToMany(mappedBy = "routine", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RoutineRepeatHistory> repeatHistories;
+
     // 소프트 딜리트 여부
     @Builder.Default
     private boolean deleted = false;
 
-    public void update(String name, Set<DayOfWeek> repeatDays, String preferredTime, LocalDate endDate, String color, RoutineGroup group) {
+    public void update(String name, String preferredTime, LocalDate endDate, String color, RoutineGroup group) {
         this.name = name;
-        this.repeatDays = repeatDays;
         this.preferredTime = preferredTime;
         this.endDate = endDate;
         this.color = color;
         this.group = group;
     }
 
-    public void moveToGroup(RoutineGroup newGroup) {
-        this.group = newGroup;
+    public void updateRepeatDays(Set<DayOfWeek> repeatDays) {
+        this.repeatDays.clear();
+        this.repeatDays.addAll(repeatDays);
+    }
+
+    public void moveToGroup(RoutineGroup group) {
+        this.group = group;
     }
 
     public void setAsDeleted() {
-        deleted = true;
+        this.deleted = true;
+    }
+
+    public boolean isSameRepeatDays(Set<DayOfWeek> other) {
+        return this.repeatDays != null && new HashSet<>(this.repeatDays).equals(other);
     }
 }

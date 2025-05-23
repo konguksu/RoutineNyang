@@ -4,7 +4,9 @@ import com.routinenyang.backend.global.exception.CustomException;
 import com.routinenyang.backend.routine.dto.*;
 import com.routinenyang.backend.routine.entity.Routine;
 import com.routinenyang.backend.routine.entity.RoutineGroup;
+import com.routinenyang.backend.routine.entity.RoutineRepeatHistory;
 import com.routinenyang.backend.routine.repository.RoutineGroupRepository;
+import com.routinenyang.backend.routine.repository.RoutineRepeatHistoryRepository;
 import com.routinenyang.backend.routine.repository.RoutineRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,6 +18,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.routinenyang.backend.global.exception.ErrorCode.*;
 
@@ -25,6 +28,7 @@ import static com.routinenyang.backend.global.exception.ErrorCode.*;
 public class RoutineService {
     private final RoutineRepository routineRepository;
     private final RoutineGroupRepository routineGroupRepository;
+    private final RoutineRepeatHistoryRepository routineRepeatHistoryRepository;
 
     private final RoutineExecutionService routineExecutionService;
 
@@ -43,6 +47,15 @@ public class RoutineService {
                 .group(routineGroup)
                 .build());
 
+        for (DayOfWeek day : request.getRepeatDays()) {
+            routineRepeatHistoryRepository.save(RoutineRepeatHistory.builder()
+                    .routine(savedRoutine)
+                    .dayOfWeek(day)
+                    .startDate(request.getStartDate())
+                    .endDate(null)
+                    .build());
+        }
+
         return RoutineSummaryResponse.from(savedRoutine);
     }
 
@@ -51,8 +64,27 @@ public class RoutineService {
                 () -> new CustomException(ROUTINE_NOT_FOUND));
         RoutineGroup group = routineGroupRepository.findById(request.getGroupId()).orElseThrow(
                 () -> new CustomException(ROUTINE_GROUP_NOT_FOUND));
-        routine.update(request.getName(), request.getRepeatDays(), request.getPreferredTime(),
-                request.getEndDate(), request.getColor(), group);
+        routine.update(request.getName(), request.getPreferredTime(), request.getEndDate(), request.getColor(), group);
+
+        // 반복 요일 변경 감지 및 이력 처리
+        Set<DayOfWeek> newRepeatDays = request.getRepeatDays();
+        if (!routine.isSameRepeatDays(newRepeatDays)) {
+            // 기존 이력 종료
+            routineRepeatHistoryRepository.closeAllActiveByRoutineId(routineId, LocalDate.now().minusDays(1));
+
+            // 새 이력 삽입
+            for (DayOfWeek newDay : newRepeatDays) {
+                routineRepeatHistoryRepository.save(RoutineRepeatHistory.builder()
+                        .routine(routine)
+                        .dayOfWeek(newDay)
+                        .startDate(LocalDate.now())
+                        .endDate(null)
+                        .build());
+            }
+
+            // 현재 상태값도 갱신
+            routine.updateRepeatDays(newRepeatDays);
+        }
 
         return RoutineSummaryResponse.from(routine);
     }

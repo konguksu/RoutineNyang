@@ -4,6 +4,7 @@ import com.routinenyang.backend.global.exception.CustomException;
 import com.routinenyang.backend.report.dto.*;
 import com.routinenyang.backend.routine.entity.Routine;
 import com.routinenyang.backend.routine.repository.RoutineExecutionRepository;
+import com.routinenyang.backend.routine.repository.RoutineRepeatHistoryRepository;
 import com.routinenyang.backend.routine.repository.RoutineRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class RoutineReportService {
 
     private final RoutineRepository routineRepository;
     private final RoutineExecutionRepository routineExecutionRepository;
+    private final RoutineRepeatHistoryRepository routineRepeatHistoryRepository;
 
     // 6개월치 월별 수행 횟수 반환
     public List<RoutineMonthlyReportResponse> getMonthlyReport(Long userId, Long routineId, YearMonth startYm) {
@@ -49,98 +51,99 @@ public class RoutineReportService {
         return results;
     }
 
+    // streak 계산 (최신→과거 순으로 검사)
     public RoutineStreakReportResponse getStreakReport(Long userId, Long routineId) {
         Routine routine = validateRoutine(userId, routineId);
-        Set<DayOfWeek> repeatDays = routine.getRepeatDays();
 
-        // 과거 180일까지 수행 기록 확인 (성능/현실성 고려)
         LocalDate endDate = LocalDate.now();
-        LocalDate startDate = endDate.minusDays(180);
+        LocalDate startDate = routine.getStartDate();
 
-        // 성공한 날짜 목록
+        // 성공한 날짜 집합
         Set<LocalDate> completedDates = new HashSet<>(
-                routineExecutionRepository.findAllCompletedDatesByRoutineIdBetween(routineId, startDate, endDate)
+                routineExecutionRepository.findAllCompletedDatesByRoutineIdBetweenOrderedDesc(routineId, startDate, endDate)
         );
 
-        // 수행 예정일 생성 (최근 → 과거 방향)
+        Map<LocalDate, Set<DayOfWeek>> repeatDayCache = new HashMap<>();
         List<LocalDate> scheduledDates = new ArrayList<>();
-        LocalDate cursor = endDate;
-        while (!cursor.isBefore(startDate)) {
-            if (repeatDays.contains(cursor.getDayOfWeek())) {
-                scheduledDates.add(cursor);
+
+        for (LocalDate date = endDate; !date.isBefore(startDate); date = date.minusDays(1)) {
+            Set<DayOfWeek> repeatDays = repeatDayCache.computeIfAbsent(date, d -> getValidRepeatDays(routineId, d));
+            if (repeatDays.contains(date.getDayOfWeek())) {
+                scheduledDates.add(date);
             }
-            cursor = cursor.minusDays(1);
         }
 
+        // 최대 연속 streak 계산
         int bestStreak = 0;
         int tempStreak = 0;
-        LocalDate bestStart = null;
-        LocalDate bestEnd = null;
-        LocalDate tempStart = null;
+        List<LocalDate> tempStreakDates = new ArrayList<>();
+        List<LocalDate> bestStreakDates = new ArrayList<>();
 
         for (LocalDate date : scheduledDates) {
             if (completedDates.contains(date)) {
                 tempStreak++;
-                if (tempStart == null) tempStart = date;
+                tempStreakDates.add(date);
             } else {
                 if (tempStreak > bestStreak) {
                     bestStreak = tempStreak;
-                    bestStart = tempStart;
-                    bestEnd = tempStart.minusDays(tempStreak - 1);
+                    bestStreakDates = new ArrayList<>(tempStreakDates);
                 }
                 tempStreak = 0;
-                tempStart = null;
+                tempStreakDates.clear();
             }
         }
 
-        // 루프 종료 후 마지막 streak가 최대인지 확인
+        // 마지막 streak 처리
         if (tempStreak > bestStreak) {
             bestStreak = tempStreak;
-            bestStart = tempStart;
-            bestEnd = tempStart.minusDays(tempStreak - 1);
+            bestStreakDates = new ArrayList<>(tempStreakDates);
         }
 
-        // 현재 streak 계산
+        // 현재 streak 계산: 최신부터 연속 성공
         int currentStreak = 0;
         for (LocalDate date : scheduledDates) {
             if (completedDates.contains(date)) {
                 currentStreak++;
-            } else {
-                break;
-            }
+            } else break;
         }
+
+        LocalDate bestEnd = bestStreakDates.isEmpty() ? null : bestStreakDates.get(bestStreakDates.size() - 1);
+        LocalDate bestStart = bestStreakDates.isEmpty() ? null : bestStreakDates.get(0);
 
         return new RoutineStreakReportResponse(currentStreak, bestStreak, bestEnd, bestStart);
     }
 
-
+    // 최근 5주 주별 성공률
     public List<RoutineWeeklyCompletionRateResponse> getRecentWeeklyCompletionRates(Long userId, Long routineId) {
-        Routine routine = validateRoutine(userId, routineId);
-        Set<DayOfWeek> repeatDays = routine.getRepeatDays();
+        validateRoutine(userId, routineId);
 
         LocalDate today = LocalDate.now();
         List<RoutineWeeklyCompletionRateResponse> results = new ArrayList<>();
+        Map<LocalDate, Set<DayOfWeek>> repeatDayCache = new HashMap<>();
 
         for (int i = 4; i >= 0; i--) {
             LocalDate start = today.with(DayOfWeek.MONDAY).minusWeeks(i);
             LocalDate end = start.plusDays(6);
 
-            // 예정된 날짜 리스트
+            // 이번 주차의 예정 수행일 리스트
             List<LocalDate> scheduledDates = start.datesUntil(end.plusDays(1))
-                    .filter(d -> repeatDays.contains(d.getDayOfWeek()))
+                    .filter(d -> repeatDayCache.computeIfAbsent(d, date ->
+                            getValidRepeatDays(routineId, date)
+                    ).contains(d.getDayOfWeek()))
                     .toList();
 
             int totalScheduled = scheduledDates.size();
 
-            // 성공한 날짜 조회
+            // 해당 주차 내 성공한 날짜 조회
             List<LocalDate> completedDates = routineExecutionRepository
-                    .findAllCompletedDatesByRoutineIdBetween(routineId, start, end);
+                    .findAllCompletedDatesByRoutineIdBetweenOrderedDesc(routineId, start, end);
 
             int completed = (int) scheduledDates.stream()
                     .filter(completedDates::contains)
                     .count();
 
-            double rate = totalScheduled == 0 ? 0.0 : (double) completed / totalScheduled;
+            double rate = totalScheduled == 0 ? 0.0 :
+                    Math.round(((double) completed / totalScheduled) * 1000) / 10.0;  // 소수점 첫째자리
 
             results.add(new RoutineWeeklyCompletionRateResponse(
                     start, totalScheduled, completed, rate
@@ -149,18 +152,7 @@ public class RoutineReportService {
         return results;
     }
 
-    public RoutineDateListResponse getExecutedDatesMonthly(Long userId, Long routineId, int year, int month) {
-        validateRoutine(userId, routineId);
-        YearMonth ym = YearMonth.of(year, month);
-        LocalDate start = ym.atDay(1);
-        LocalDate end = ym.atEndOfMonth();
-
-        List<LocalDate> dates = routineExecutionRepository
-                .findAllCompletedDatesByRoutineIdBetween(routineId, start, end);
-
-        return new RoutineDateListResponse(dates);
-    }
-
+    // 월별 성공일자 리스트 (반복 요일은 고려하지 않고 단순 완료일자만 반환함)
     public RoutineDateListResponse getExecutedDatesWeekly(Long userId, Long routineId, LocalDate startDate) {
         validateRoutine(userId, routineId);
 
@@ -168,25 +160,38 @@ public class RoutineReportService {
         LocalDate sunday = monday.plusDays(6);
 
         List<LocalDate> completedDates = routineExecutionRepository
-                .findAllCompletedDatesByRoutineIdBetween(routineId, monday, sunday);
+                .findAllCompletedDatesByRoutineIdBetweenOrderedDesc(routineId, monday, sunday);
 
         return new RoutineDateListResponse(completedDates);
     }
 
+    // 주간 성공일자 리스트 (반복 요일은 고려하지 않고 단순 완료일자만 반환함)
+    public RoutineDateListResponse getExecutedDatesMonthly(Long userId, Long routineId, int year, int month) {
+        validateRoutine(userId, routineId);
+        YearMonth ym = YearMonth.of(year, month);
+        LocalDate start = ym.atDay(1);
+        LocalDate end = ym.atEndOfMonth();
 
+        List<LocalDate> dates = routineExecutionRepository
+                .findAllCompletedDatesByRoutineIdBetweenOrderedDesc(routineId, start, end);
 
+        return new RoutineDateListResponse(dates);
+    }
+
+    // 연간 성공일자 리스트 (반복 요일은 고려하지 않고 단순 완료일자만 반환함)
     public RoutineDateListResponse getExecutedDatesYearly(Long userId, Long routineId, int year) {
         validateRoutine(userId, routineId);
         LocalDate start = LocalDate.of(year, 1, 1);
         LocalDate end = LocalDate.of(year, 12, 31);
 
         List<LocalDate> dates = routineExecutionRepository
-                .findAllCompletedDatesByRoutineIdBetween(routineId, start, end);
+                .findAllCompletedDatesByRoutineIdBetweenOrderedDesc(routineId, start, end);
 
         return new RoutineDateListResponse(dates);
     }
 
-    public RoutineDayOfWeekResponse getDayOfWeekCount(Long userId, Long routineId) {
+    // 요일별 성공 카운트
+    public RoutineDayOfWeekCountResponse getDayOfWeekCount(Long userId, Long routineId) {
         validateRoutine(userId, routineId);
 
         // 성공한 날짜 목록
@@ -197,18 +202,19 @@ public class RoutineReportService {
         Map<DayOfWeek, Integer> dayOfWeekCountMap = new HashMap<>();
 
         for (LocalDate completedDate : completedDates) {
-            for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
-                if (completedDate.getDayOfWeek().equals(dayOfWeek)) {
-                    dayOfWeekCountMap.put(dayOfWeek, dayOfWeekCountMap.getOrDefault(dayOfWeek, 0) + 1);
-                }
-            }
+            DayOfWeek dow = completedDate.getDayOfWeek();
+            dayOfWeekCountMap.put(dow, dayOfWeekCountMap.getOrDefault(dow, 0) + 1);
         }
 
-        return new RoutineDayOfWeekResponse(dayOfWeekCountMap);
+        return new RoutineDayOfWeekCountResponse(dayOfWeekCountMap);
     }
 
     private Routine validateRoutine(Long userId, Long routineId) {
         return routineRepository.findByIdAndUserIdAndDeletedFalse(routineId, userId)
                 .orElseThrow(() -> new CustomException(ROUTINE_NOT_FOUND));
+    }
+
+    private Set<DayOfWeek> getValidRepeatDays(Long routineId, LocalDate date) {
+        return new HashSet<>(routineRepeatHistoryRepository.findRepeatDaysByRoutineIdAndDate(routineId, date));
     }
 }
