@@ -10,12 +10,14 @@ import java.time.LocalDate;
 @Getter
 public class UserBasicInfoDto {
     private String name;
+    private String email;
     private LocalDate dateOfBirth;
     private String gender;
 
     public static UserBasicInfoDto from(User user) {
         return UserBasicInfoDto.builder()
                 .name(user.getName())
+                .email(user.getEmail())
                 .dateOfBirth(user.getDateOfBirth())
                 .gender(user.getGender())
                 .build();
