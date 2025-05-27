@@ -33,14 +33,16 @@ public class UserController {
 
     @GetMapping("/info/basics")
     @Operation(summary = "User 기본 정보 조회", description = "유저의 이름, 나이, 성별 조회")
-    public ResponseEntity<ApiResponse<UserBasicInfoDto>> findBasicUserInfo(@CurrentUser User user) {
+    public ResponseEntity<ApiResponse<UserBasicInfoDto>> findBasicUserInfo(
+            @Parameter(hidden = true) @CurrentUser User user) {
         return ResponseFactory.ok(userService.findBasicInfo(user));
     }
 
     @GetMapping("/info/survey-answers")
     @Operation(summary = "User 설문 정보 조회", description = "온보딩에서 입력받은 유저의 설문 결과 조회")
 
-    public ResponseEntity<ApiResponse<SurveyResponse>> findSurveyAnswers(@CurrentUser User user) {
+    public ResponseEntity<ApiResponse<SurveyResponse>> findSurveyAnswers(
+            @Parameter(hidden = true) @CurrentUser User user) {
         return ResponseFactory.ok(userService.findSurveyAnswers(user));
     }
 

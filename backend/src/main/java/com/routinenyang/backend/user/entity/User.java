@@ -32,6 +32,7 @@ public class User extends BaseEntity {
     private LocalDate dateOfBirth;
     private String gender;
 
+    @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserSurvey> userSurveys = new ArrayList<>();
 
