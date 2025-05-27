@@ -11,6 +11,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.routinenyang.backend.auth.oauth2.CustomOauth2UserDetailsService;
 import com.routinenyang.backend.auth.oauth2.OAuth2SuccessHandler;
 import com.routinenyang.backend.auth.jwt.JwtAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 import static com.routinenyang.backend.global.constants.GlobalConstants.APPOINTED_URIS;
 
@@ -44,4 +49,21 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "https://routinenyang-service-1002302699919.us-central1.run.app"
+        ));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
 }

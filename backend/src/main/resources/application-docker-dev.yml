@@ -1,0 +1,43 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/routinenyang?serverTimezone=UTC&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: appuser
+    password: secure_pass_2025 # (테스트용)
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 1000
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${OAUTH2_CLIENT_ID}
+            client-secret: ${OAUTH2_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
+jwt:
+  secret-key: U29tZVN1cGVyU2VjdXJlS2V5Rm9yUm91dGluZU55YW5nMjAyNQ==
+  expiration: 86400000
+
+springdoc:
+  swagger-ui:
+    path: /api-test
+    url: /api-docs
+    tagsSorter: alpha
+    operations-sorter: method
+    persist-authorization: true
+    doc-expansion: none
+    display-schema-extensions: true
+  api-docs:
+    path: /api-docs
+  show-actuator: true
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json
