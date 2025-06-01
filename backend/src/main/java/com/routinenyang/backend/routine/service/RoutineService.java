@@ -89,16 +89,16 @@ public class RoutineService {
         return RoutineSummaryResponse.from(routine);
     }
 
-    public Page<RoutineSummaryResponse> findAllWithFilter(Long userId, Long groupId, boolean activeOnly, Pageable pageable) {
+    public Page<RoutineSummaryResponse> findAllWithFilter(Long userId, Long groupId, boolean isActive, Pageable pageable) {
         LocalDate today = LocalDate.now();
         Page<Routine> routines =
-                (groupId != null && activeOnly)
-                    ? routineRepository.findByUserIdAndGroupIdAndEndDateAfterAndDeletedFalse(userId, groupId, today, pageable)
+                (groupId != null && isActive)
+                    ? routineRepository.findByUserIdAndGroupIdAndEndDateAfterAndDeletedFalse(userId, groupId, today.minusDays(1), pageable)
                 : (groupId != null)
-                    ? routineRepository.findByUserIdAndGroupIdAndDeletedFalse(userId, groupId, pageable)
-                : (activeOnly)
-                    ? routineRepository.findByUserIdAndEndDateAfterAndDeletedFalse(userId, today, pageable)
-                : routineRepository.findByUserIdAndDeletedFalse(userId, pageable);
+                    ? routineRepository.findByUserIdAndGroupIdAndEndDateBeforeAndDeletedFalse(userId, groupId, today, pageable)
+                : (isActive)
+                    ? routineRepository.findByUserIdAndEndDateAfterAndDeletedFalse(userId, today.minusDays(1), pageable)
+                : routineRepository.findByUserIdAndEndDateBeforeAndDeletedFalse(userId, today, pageable);
         return routines.map(RoutineSummaryResponse::from);
     }
 

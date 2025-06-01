@@ -41,16 +41,16 @@ public class RoutineController {
     }
 
     @GetMapping("/filter")
-    @Operation(summary = "Routine 목록 조회 (필터)", description = "전체, 그룹별, 종료되지 않은 루틴 조회 + 페이징")
+    @Operation(summary = "Routine 목록 조회 (필터)", description = "전체, 그룹별, 종료 여부 필터링해서 루틴 조회 + 페이징")
     public ResponseEntity<ApiResponse<Page<RoutineSummaryResponse>>> findAllWithFilter(
             @Parameter(hidden = true) @CurrentUser User user,
             @RequestParam(required = false) Long groupId,
-            @RequestParam(defaultValue = "false") boolean activeOnly,
+            @RequestParam(defaultValue = "false") boolean isActive,
             @ParameterObject
             @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = DESC)
             Pageable pageable
     ) {
-        return ResponseFactory.ok(routineService.findAllWithFilter(user.getId(), groupId, activeOnly, pageable));
+        return ResponseFactory.ok(routineService.findAllWithFilter(user.getId(), groupId, isActive, pageable));
     }
 
     @GetMapping
