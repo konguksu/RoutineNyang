@@ -101,16 +101,18 @@ public class RoutineReportService {
 
         // 현재 streak 계산: 최신부터 연속 성공
         int currentStreak = 0;
+        LocalDate currentStart = null;
         for (LocalDate date : scheduledDates) {
             if (completedDates.contains(date)) {
                 currentStreak++;
+                currentStart = date;
             } else break;
         }
 
-        LocalDate bestEnd = bestStreakDates.isEmpty() ? null : bestStreakDates.get(bestStreakDates.size() - 1);
-        LocalDate bestStart = bestStreakDates.isEmpty() ? null : bestStreakDates.get(0);
+        LocalDate bestEnd = bestStreakDates.isEmpty() ? null : bestStreakDates.getLast();
+        LocalDate bestStart = bestStreakDates.isEmpty() ? null : bestStreakDates.getFirst();
 
-        return new RoutineStreakReportResponse(currentStreak, bestStreak, bestEnd, bestStart);
+        return new RoutineStreakReportResponse(currentStreak, bestStreak, currentStart, bestEnd, bestStart);
     }
 
     // 최근 5주 주별 성공률
