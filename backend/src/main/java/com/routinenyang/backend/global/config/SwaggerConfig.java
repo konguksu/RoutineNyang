@@ -29,7 +29,7 @@ public class SwaggerConfig {
                 .components(new Components())
                 .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
                 .info(apiInfo())
-                .servers(List.of(localServer()));
+                .servers(List.of(localServer(), deployedTestServer()));
     }
 
     private Info apiInfo() {
@@ -43,5 +43,11 @@ public class SwaggerConfig {
         return new Server()
                 .url(SERVERS_URL_LOCAL)
                 .description(SERVERS_DESCRIPTION_LOCAL);
+    }
+
+    private Server deployedTestServer() {
+        return new Server()
+                .url(SERVERS_URL_DEPLOYED_TEST)
+                .description(SERVERS_DESCRIPTION_DEPLOYED_TEST);
     }
 }

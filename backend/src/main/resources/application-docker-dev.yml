@@ -3,7 +3,7 @@ spring:
     url: jdbc:mysql://localhost:3306/routinenyang?serverTimezone=UTC&characterEncoding=UTF-8
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: appuser
-    password: secure_pass_2025 # (테스트용)
+    password: ${DB_PASSWORD}  # (테스트용)
   jpa:
     hibernate:
       ddl-auto: update
@@ -24,7 +24,7 @@ spring:
               - email
               - profile
 jwt:
-  secret-key: U29tZVN1cGVyU2VjdXJlS2V5Rm9yUm91dGluZU55YW5nMjAyNQ==
+  secret-key: ${JWT_SECRET}
   expiration: 86400000
 
 springdoc:
@@ -35,7 +35,6 @@ springdoc:
     operations-sorter: method
     persist-authorization: true
     doc-expansion: none
-    display-schema-extensions: true
   api-docs:
     path: /api-docs
   show-actuator: true
