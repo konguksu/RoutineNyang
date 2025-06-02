@@ -37,8 +37,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPOSITORY }}/${{ secrets.CLOUD_RUN_SERVICE }} .
-          working-directory: ./backend
+          docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPOSITORY }}/${{ secrets.CLOUD_RUN_SERVICE }} ./backend
 
       - name: Push Docker image
         run: |
