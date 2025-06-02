@@ -19,6 +19,10 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Make Gradle Wrapper executable
+        run: chmod +x ./gradlew
+        working-directory: ./backend
+
       - name: Build with Gradle
         run: ./gradlew clean build -x test
         working-directory: ./backend
