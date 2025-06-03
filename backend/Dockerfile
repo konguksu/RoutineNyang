@@ -16,7 +16,7 @@ COPY ./build/libs/RoutineNyang-0.0.1-SNAPSHOT.jar app.jar
 
 # 설정 파일 복사
 COPY ./src/main/resources/application-docker-dev.yml /app/application-docker-dev.yml
-COPY ./docker/init-db-user.sql /docker/init-db-user.sql
+COPY ./docker/init-db.sql /docker/init-db.sql
 COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # MySQL 환경변수 설정
