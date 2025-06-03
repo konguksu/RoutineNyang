@@ -55,4 +55,4 @@ jobs:
             --memory=2048Mi \
             --max-instances=1 \
             --allow-unauthenticated \
-            --set-env-vars "JWT_SECRET=${{ secrets.JWT_SECRET}},OAUTH2_CLIENT_ID=${{ secrets.JWT_SECRET}},OAUTH2_CLIENT_SECRET=${{ secrets.OAUTH2_CLIENT_SECRET}}"
+            --set-env-vars "DB_PASSWORD=${{ secrets.DB_PASSWORD }},JWT_SECRET=${{ secrets.JWT_SECRET}},OAUTH2_CLIENT_ID=${{ secrets.JWT_SECRET}},OAUTH2_CLIENT_SECRET=${{ secrets.OAUTH2_CLIENT_SECRET}}"
