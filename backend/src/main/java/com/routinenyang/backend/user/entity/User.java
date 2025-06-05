@@ -1,11 +1,12 @@
 package com.routinenyang.backend.user.entity;
 
+import com.routinenyang.backend.global.base.BaseEntity;
+import com.routinenyang.backend.store.entity.Coin;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import com.routinenyang.backend.global.base.BaseEntity;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -35,6 +36,9 @@ public class User extends BaseEntity {
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserSurvey> userSurveys = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Coin coin;
 
     public void setOnBoardingAsFinished() {
         onBoardingFinished = true;

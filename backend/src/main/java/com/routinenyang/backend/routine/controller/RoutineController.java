@@ -90,10 +90,11 @@ public class RoutineController {
     @PatchMapping("/{routine-id}/toggle")
     @Operation(summary = "Routine Execution 상태 토글", description = "루틴을 수행 완료한 상태라면 실패로, 실패한 상태라면 완료로 변경")
     public ResponseEntity<ApiResponse<Void>> toggleExecution(
+            @Parameter(hidden = true) @CurrentUser User user,
             @PathVariable("routine-id") Long routineId,
             @RequestParam LocalDate date
     ) {
-        routineExecutionService.toggleExecution(routineId, date);
+        routineExecutionService.toggleExecution(user.getId(), routineId, date);
         return ResponseFactory.ok((Void) null);
     }
 }
