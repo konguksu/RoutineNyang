@@ -14,6 +14,8 @@ public class SwaggerConstants {
 
     public static final String SERVERS_URL_LOCAL = "http://localhost:8080";
     public static final String SERVERS_DESCRIPTION_LOCAL = "Local Test Server";
+    public static final String SERVERS_URL_DEPLOYED_TEST = "https://routinenyang-service-1002302699919.us-central1.run.app";
+    public static final String SERVERS_DESCRIPTION_DEPLOYED_TEST = "Deployed Test Server";
 
     public static final String SECURITY_SCHEME_NAME = "bearer-key";
     public static final String SECURITY_SCHEME = "bearer";

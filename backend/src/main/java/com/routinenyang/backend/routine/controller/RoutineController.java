@@ -41,16 +41,16 @@ public class RoutineController {
     }
 
     @GetMapping("/filter")
-    @Operation(summary = "Routine 목록 조회 (필터)", description = "전체, 그룹별, 종료되지 않은 루틴 조회 + 페이징")
+    @Operation(summary = "Routine 목록 조회 (필터)", description = "전체, 그룹별, 종료 여부 필터링해서 루틴 조회 + 페이징")
     public ResponseEntity<ApiResponse<Page<RoutineSummaryResponse>>> findAllWithFilter(
             @Parameter(hidden = true) @CurrentUser User user,
             @RequestParam(required = false) Long groupId,
-            @RequestParam(defaultValue = "false") boolean activeOnly,
+            @RequestParam(defaultValue = "false") boolean isActive,
             @ParameterObject
             @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = DESC)
             Pageable pageable
     ) {
-        return ResponseFactory.ok(routineService.findAllWithFilter(user.getId(), groupId, activeOnly, pageable));
+        return ResponseFactory.ok(routineService.findAllWithFilter(user.getId(), groupId, isActive, pageable));
     }
 
     @GetMapping
@@ -90,10 +90,11 @@ public class RoutineController {
     @PatchMapping("/{routine-id}/toggle")
     @Operation(summary = "Routine Execution 상태 토글", description = "루틴을 수행 완료한 상태라면 실패로, 실패한 상태라면 완료로 변경")
     public ResponseEntity<ApiResponse<Void>> toggleExecution(
+            @Parameter(hidden = true) @CurrentUser User user,
             @PathVariable("routine-id") Long routineId,
             @RequestParam LocalDate date
     ) {
-        routineExecutionService.toggleExecution(routineId, date);
+        routineExecutionService.toggleExecution(user.getId(), routineId, date);
         return ResponseFactory.ok((Void) null);
     }
 }
