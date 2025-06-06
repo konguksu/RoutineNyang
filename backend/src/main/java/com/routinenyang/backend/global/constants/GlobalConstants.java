@@ -7,6 +7,7 @@ public class GlobalConstants {
             "/loginPage",            // 로그인 페이지
             "/csrf",                 // CSRF 엔드포인트
             "/error",                // 에러 페이지
+            "/images/**",                // 정적 리소스 중 이미지들
 
             "/api-docs",              // 사용자 지정 OpenAPI JSON 경로
             "/api-docs/swagger-config",

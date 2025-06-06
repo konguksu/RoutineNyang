@@ -5,9 +5,6 @@ public class SwaggerConstants {
      * swagger
      */
 
-    public static final String[] SWAGGER_APPOINTED_PATHS = {
-            "/**"
-    };
     public static final String DEFINITION_TITLE = "🐈 루틴냥 API 명세서";
     public static final String DEFINITION_DESCRIPTION = "AI based routine Recommendation Service - 루틴냥 Server의 API 명세서입니다.";
     public static final String DEFINITION_VERSION = "v1";
